@@ -1,0 +1,3 @@
+env:
+  RUST_LOG: auto-secret_operator=trace,reqwest=trace,debug
+  RUST_BACKTRACE: "1"

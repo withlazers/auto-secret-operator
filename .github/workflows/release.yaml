@@ -1,0 +1,75 @@
+name: Release
+on:
+  push:
+    tags:
+    - 'v[0-9]*.[0-9]*.[0-9]*'
+    - 'snapshot-*'
+
+jobs:
+  prepare:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Check Versions
+    - name: Check If Versions Match
+      run: |
+        cargo_version=$(cargo pkgid | cut -d'#' -f 2)
+        helm_version=$(yq .version charts/auto-secret-operator/Chart.yaml)
+        helm_appversion=$(yq .appVersion charts/auto-secret-operator/Chart.yaml)
+
+        set -x
+        test "${cargo_version}"   = "${GITHUB_REF_NAME#v}"
+        test "${helm_version}"    = "${GITHUB_REF_NAME#v}"
+        test "${helm_appversion}" = "${GITHUB_REF_NAME}"
+
+  build:
+    if: contains(github.ref_name, 'snapshot') == false
+    needs: prepare
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        target:
+        - aarch64-unknown-linux-musl
+        - x86_64-unknown-linux-musl
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/rust-build
+      name: Build
+      with:
+        target: ${{ matrix.target }}
+        use-cross: true
+
+  container:
+    needs:
+    - build
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: withlazers/container-action@main
+      with:
+        repository: auto-secret-operator
+        username: gottox
+        password: ${{ secrets.DOCKER_TOKEN }}
+        ref-tags: ${{ github.ref_name }}
+        dockerfile: ./Dockerfile
+        archs: "amd64"
+
+
+  release:
+    if: contains(github.ref_name, 'snapshot') == false
+    needs:
+    - container
+    - build
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: withlazers/release-action@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ssh_key: ${{ secrets.HELMCHART_SSH_DEPLOY_KEY }}
+        artifacts: "*"
+        helm_chart: auto-secret-operator

@@ -1,0 +1,25 @@
+[package]
+name = "auto-secret-operator"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+kube = { version = "0.96.0", features = ["runtime", "derive"] }
+k8s-openapi = { version = "0.23.0", features = ["latest", "schemars"] }
+clap = { version = "4.5.28", features = ["derive", "env", "help", "std"], default-features = false }
+thiserror = "2.0.11"
+log = { version = "0.4.25", features = ["kv"] }
+pretty_env_logger = "0.5.0"
+randstr = "0.2.1"
+structured-logger = "1.0.3"
+tokio = { version = "1.43.0", default-features = false, features = ["macros", "rt-multi-thread"] }
+serde_yaml = "0.9.34"
+futures-util = "0.3.31"
+serde = { version = "1.0.217", features = ["serde_derive"] }
+serde_json = "1.0.138"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+panic = "abort"
