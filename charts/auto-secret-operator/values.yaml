@@ -42,15 +42,6 @@ resources:
     cpu: 50m
     memory: 128Mi
 
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-
 service:
   port: 8080
 

@@ -24,15 +24,11 @@ The helm-chart for the auto-secret-operator
 | image.repository | string | `"withlazers/auto-secret-operator"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| livenessProbe.httpGet.path | string | `"/healthz"` |  |
-| livenessProbe.httpGet.port | string | `"http"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
-| readinessProbe.httpGet.path | string | `"/healthz"` |  |
-| readinessProbe.httpGet.port | string | `"http"` |  |
 | replicaCount | int | `1` | must be 1. The auto-secret-operator currently does not support multiple replicas. |
 | resources.limits.cpu | string | `"100m"` |  |
 | resources.limits.memory | string | `"128Mi"` |  |
